@@ -25,6 +25,17 @@ source, dest = sys.argv[1:3]
 [0] file name
 [1] first string
 [2] second string
+
+dict_keys([
+    'Longitude'
+    'High Score'
+    'Average Score'
+    'Phone'
+    'Latitude'
+    'Address'
+    'Total Inspections'
+    'Business Name'
+    'Business Category'
 """
 
 from bs4 import BeautifulSoup
@@ -176,7 +187,7 @@ def result_generator(count):
         inspection_data = get_score_data(data_div)
         # Update metadata dictionary with inspection data
         metadata.update(inspection_data)
-        #print(metadata)
+        # print(metadata,"\n")
         yield metadata
 
 
@@ -206,9 +217,13 @@ def get_geojson(result):
 
 
 if __name__ == '__main__':
+    # create dictionary with 'features' as a list
     total_result = {'type': 'FeatureCollection', 'features': []}
     for result in result_generator(10):
+        print(result.keys())
         geojson = get_geojson(result)
         total_result['features'].append(geojson)
+    # So features is a list of dictionaries that we can sort
+    # sort_list_of_dictionaries(total_result['features'], 'High Score')
     with open('my_map.json', 'w') as fh:
         json.dump(total_result, fh)
