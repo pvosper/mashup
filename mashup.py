@@ -1,9 +1,48 @@
+"""
+For your homework this week, you’ll be polishing this mashup.
+
+Begin by sorting the results of our search by the average score (can you do
+this and still use a generator for getting the geojson?).
+
+Then, update your script to allow the user to choose how to sort, by average,
+high score or most inspections:
+
+(soupenv)$ python mashup.py highscore
+
+Next, allow the user to choose how many results to map:
+
+(soupenv)$ python mashup.py highscore 25
+
+Or, allow them to reverse the results, showing the lowest scores first:
+
+(soupenv)$ python mashup.py highscore 25 reverse
+
+Notes
+
+html = load_inspection_page('inspection_page.html')
+
+source, dest = sys.argv[1:3]
+[0] file name
+[1] first string
+[2] second string
+"""
+
 from bs4 import BeautifulSoup
 import geocoder
 import json
 import pathlib
 import re
 import requests
+import operator
+import argparse
+
+# Parse command line arguments
+parser = argparse.ArgumentParser()
+parser.add_argument("sort_key", help="Sort Key", default="highscore")
+parser.add_argument("entry_count", type=int, help="Number of entries returned", default=10)
+parser.add_argument("sort_order", help="Sort order", default="reverse")
+args = parser.parse_args()
+print("Args: {}".format(args))
 
 
 INSPECTION_DOMAIN = 'http://info.kingcounty.gov'
@@ -40,7 +79,7 @@ def get_inspection_page(**kwargs):
 
 
 def parse_source(html):
-    parsed = BeautifulSoup(html)
+    parsed = BeautifulSoup(html, "html5lib")
     return parsed
 
 
@@ -121,18 +160,28 @@ def result_generator(count):
     use_params = {
         'Inspection_Start': '2/1/2013',
         'Inspection_End': '2/1/2015',
-        'Zip_Code': '98117'
+        'Zip_Code': '98101'
     }
     # html = get_inspection_page(**use_params)
+    # Use pre-existing page
     html = load_inspection_page('inspection_page.html')
+    # Parse using method that uses BeautifulSoup
     parsed = parse_source(html)
     content_col = parsed.find("td", id="contentcol")
     data_list = restaurant_data_generator(content_col)
+    #Todo sort data list so entries used below are highest, lowest, etc
     for data_div in data_list[:count]:
         metadata = extract_restaurant_metadata(data_div)
         inspection_data = get_score_data(data_div)
+        # Update metadata dictionary with inspection data
         metadata.update(inspection_data)
+        #print(metadata)
         yield metadata
+
+
+def sort_list_of_dictionaries(list_dicts, sort_key, rev=False):
+    list_dicts.sort(key=operator.itemgetter(sort_key), reverse=rev)
+    print(list_dicts)
 
 
 def get_geojson(result):
