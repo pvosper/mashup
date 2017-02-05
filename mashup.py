@@ -38,11 +38,12 @@ import argparse
 
 # Parse command line arguments
 parser = argparse.ArgumentParser()
-parser.add_argument("sort_key", help="Sort Key", default="highscore")
-parser.add_argument("entry_count", type=int, help="Number of entries returned", default=10)
-parser.add_argument("sort_order", help="Sort order", default="reverse")
+parser.add_argument("sort_key", help="Sort Key")
+parser.add_argument("entry_count", type=int, help="Number of entries returned")
+parser.add_argument("sort_order", help="Sort order")
 args = parser.parse_args()
-print("Args: {}".format(args))
+print("Args:\n\tSort key: {}\n\tEntry count: {}\n\tSort order: {}\n".format(
+    args.sort_key, args.entry_count, args.sort_order))
 
 
 INSPECTION_DOMAIN = 'http://info.kingcounty.gov'
