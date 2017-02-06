@@ -219,11 +219,19 @@ def get_geojson(result):
 if __name__ == '__main__':
     # create dictionary with 'features' as a list
     total_result = {'type': 'FeatureCollection', 'features': []}
-    for result in result_generator(10):
-        print(result.keys())
-        geojson = get_geojson(result)
-        total_result['features'].append(geojson)
     # So features is a list of dictionaries that we can sort
     # sort_list_of_dictionaries(total_result['features'], 'High Score')
+    for result in result_generator(10):
+        # print(result.keys())
+        geojson = get_geojson(result)
+        # print(geojson['properties'])
+        total_result['features'].append(geojson)
+    sort_list_of_dictionaries(total_result['features']['properties'], 'High Score')
+    print("type(total_result['features']): {}".format(type(total_result['features'])))
+    for entry in total_result['features']:
+        print(entry['properties']['High Score'])
+    """
+    For each entry in features, sort by properties:high score
+    """
     with open('my_map.json', 'w') as fh:
         json.dump(total_result, fh)
